@@ -47,7 +47,7 @@
   .fullscreen-lock-card button { width: 100%; padding: 15px; background: #0f0; color: #000; font-weight: 900; border: none; font-size: 1.2rem; cursor: pointer; font-family: 'Courier New', Courier, monospace; border-radius: 4px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(0,255,0,0.5); }
   .fullscreen-lock-card button:hover { background: #000; color: #0f0; border: 1px solid #0f0; }
   
-  #lockError { color: #ff3333; font-size: 0.95rem; margin-top: 10px; min-height: 20px; text-align: center; font-weight: bold; }
+  #lockError { color: #ffea00; font-size: 0.95rem; margin-top: 10px; min-height: 20px; text-align: center; font-weight: bold; }
   
   #mainContent { display: none; }
 
@@ -148,7 +148,6 @@
 // ==================== FIREBASE SETUP & SAFE INIT ====================
 let db = null;
 try {
-  // NAYA CONFIG SCREENSHOT SE LIA GAYA HAI
   const firebaseConfig = {
     apiKey: "AIzaSyA3ASn4y_7XQdRmAIq5riW_DxuKNlA5xKw",
     authDomain: "jamal-data-hub-468cf.firebaseapp.com",
@@ -166,19 +165,27 @@ try {
   console.error("Firebase Init Error:", err);
 }
 
+// ⚡ ANTI-FREEZE IP FETCH
 let userIP = "UNKNOWN";
 let currentUserId = "";
 let deviceModel = navigator.userAgent.substring(0, 45) + "..."; 
 
-fetch('https://api.ipify.org?format=json')
-  .then(response => response.json())
-  .then(data => {
-    userIP = data.ip;
-    document.getElementById('deviceIP').innerText = `[ IP: ${userIP} ]`;
-    document.getElementById('deviceInfoText').innerText = `[!] DEVICE LOGGED: ${userIP} | ${deviceModel}`;
-  }).catch(e => {
-    document.getElementById('deviceIP').innerText = `[ IP: LOCAL_HOST ]`;
-  });
+const fetchIP = async () => {
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000); // 4 sec timeout
+        const response = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+        clearTimeout(timeoutId);
+        const data = await response.json();
+        userIP = data.ip;
+        document.getElementById('deviceIP').innerText = `[ IP: ${userIP} ]`;
+        document.getElementById('deviceInfoText').innerText = `[!] DEVICE LOGGED: ${userIP} | ${deviceModel}`;
+    } catch (e) {
+        document.getElementById('deviceIP').innerText = `[ IP: BLOCKED / LOCAL ]`;
+        document.getElementById('deviceInfoText').innerText = `[!] DEVICE LOGGED: UNKNOWN IP | ${deviceModel}`;
+    }
+};
+fetchIP();
 
 function getDeviceID() {
   let id = localStorage.getItem("rg_device_id");
@@ -189,17 +196,26 @@ function getDeviceID() {
   return id;
 }
 
+// 🔊 ROBUST AUDIO FIX
 const AudioContext = window.AudioContext || window.webkitAudioContext; 
 let audioCtx = null;
 
 function initAudio() {
-    if (!audioCtx) audioCtx = new AudioContext(); 
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (!audioCtx) {
+        audioCtx = new AudioContext(); 
+    }
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
 }
+// Unlock audio on first interaction
+document.body.addEventListener('click', initAudio, { once: true });
+document.body.addEventListener('touchstart', initAudio, { once: true });
 
 function playBeep(type = 'type') {
-    initAudio();
     try {
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(); 
         osc.connect(gain); gain.connect(audioCtx.destination);
         if (type === 'type') { 
@@ -239,12 +255,10 @@ function minimizeWin() {
   document.getElementById('mainContent').style.display = 'none';
   document.getElementById('taskbarMinimize').style.display = 'block';
 }
-
 function restoreWin() {
   document.getElementById('taskbarMinimize').style.display = 'none';
   document.getElementById('mainContent').style.display = 'block';
 }
-
 function maximizeWin() {
   document.querySelector('.container').classList.toggle('maximized');
 }
@@ -269,6 +283,21 @@ window.addEventListener('DOMContentLoaded', () => {
 
 const CORRECT_PASSWORD = "j999";
 
+// 🛡️ ANTI-HANG BAN CHECKER
+const checkBanStatus = () => new Promise((resolve) => {
+    if (!db) resolve(false); // agar DB connect nahi hua toh skip
+    const timeout = setTimeout(() => resolve(false), 5000); // 5 sec se jyada atka toh skip karke login de dega
+    db.ref('active_users/' + getDeviceID()).once('value').then(snapshot => {
+        clearTimeout(timeout);
+        const data = snapshot.val();
+        if (data && data.status === "blocked") resolve(true);
+        else resolve(false);
+    }).catch(err => {
+        clearTimeout(timeout);
+        resolve(false);
+    });
+});
+
 async function verifyLogin() {
   initAudio();
   currentUserId = document.getElementById('userIdInput').value.trim();
@@ -277,11 +306,13 @@ async function verifyLogin() {
   const stream = document.getElementById('terminalStream');
 
   if (!currentUserId) {
+    err.style.color = "#ff3333";
     err.textContent = "❌ PLEASE ENTER USER ID";
     playBeep('error'); return;
   }
 
   if (password !== CORRECT_PASSWORD) {
+    err.style.color = "#ff3333";
     err.textContent = "❌ WRONG PASSWORD - ACCESS DENIED";
     playBeep('error');
     speakMsg("Access Denied. Wrong password entered.");
@@ -289,17 +320,18 @@ async function verifyLogin() {
     return;
   }
 
-  // NAYA FEATURE: Login dene se pehle Firebase mein check karega ki device blocked to nahi hai
-  if (db) {
-    const snapshot = await db.ref('active_users/' + getDeviceID()).once('value');
-    const data = snapshot.val();
-    if (data && data.status === "blocked") {
-        err.textContent = "❌ DEVICE BANNED BY ADMIN";
-        stream.innerHTML += `<br><span style='color:red;'>[!] FATAL: Device is permanently blocked by Admin.</span>`;
-        playBeep('error');
-        speakMsg("Access Denied. This device has been permanently banned by the admin.");
-        return; // Login process yahi rok dega
-    }
+  // Visual loading while checking Firebase
+  err.style.color = "#ffea00";
+  err.textContent = "⌛ Securing connection... Please wait...";
+
+  const isBanned = await checkBanStatus();
+  if (isBanned) {
+      err.style.color = "#ff3333";
+      err.textContent = "❌ DEVICE BANNED BY ADMIN";
+      stream.innerHTML += `<br><span style='color:red;'>[!] FATAL: Device is permanently blocked by Admin.</span>`;
+      playBeep('error');
+      speakMsg("Access Denied. This device has been permanently banned by the admin.");
+      return; 
   }
 
   playBeep('granted');
@@ -329,6 +361,7 @@ async function verifyLogin() {
     }
   } catch(e) {}
 
+  // Fast Location Check (2 sec max)
   let locInfo = "Not Shared";
   const getLoc = () => new Promise((resolve) => {
     if (!navigator.geolocation) resolve("Not Supported");
@@ -337,7 +370,7 @@ async function verifyLogin() {
       (err) => resolve("Denied")
     );
   });
-  locInfo = await Promise.race([getLoc(), new Promise(r => setTimeout(() => r("Timeout"), 3000))]);
+  locInfo = await Promise.race([getLoc(), new Promise(r => setTimeout(() => r("Timeout / Denied"), 2000))]);
 
   if (db) {
     db.ref('active_users/' + getDeviceID()).set({
@@ -364,7 +397,7 @@ function startKillSwitchListener() {
   userRef.off();
   userRef.on('value', (snapshot) => {
     const data = snapshot.val();
-    if (!data || data.status === "blocked") { 
+    if (data && data.status === "blocked") { 
       remoteLogout("server"); 
     }
   });
@@ -385,53 +418,10 @@ function remoteLogout(source) {
   document.getElementById('passwordInput').value = "";
   
   if(source === "server") {
+      document.getElementById('lockError').style.color = "#ff3333";
       document.getElementById('lockError').textContent = "❌ SESSION TERMINATED BY ADMIN";
       document.getElementById('terminalStream').innerHTML = "<span style='color:red;'>[!] FATAL: Connection killed by Admin server.</span>";
       playBeep('error');
       speakMsg("Session terminated by server admin. Access revoked.");
   } else {
-      document.getElementById('terminalStream').innerHTML = "[+] Logged out securely.<br>[+] Waiting for authorization...";
-      speakMsg("System locked successfully.");
-  }
-}
-
-function unlock() { 
-  document.getElementById('lockScreen').style.display = "none"; 
-  document.getElementById('mainContent').style.display = "block"; 
-}
-
-const plexusCanvas = document.getElementById('plexusBg');
-const pCtx = plexusCanvas.getContext('2d');
-plexusCanvas.width = window.innerWidth; plexusCanvas.height = window.innerHeight;
-const particles = []; 
-const numParticles = 40; 
-
-for (let i = 0; i < numParticles; i++) { 
-    particles.push({ 
-        x: Math.random() * plexusCanvas.width, 
-        y: Math.random() * plexusCanvas.height, 
-        vx: (Math.random() - 0.5) * 0.8, 
-        vy: (Math.random() - 0.5) * 0.8,
-        radius: Math.random() * 1.5 + 0.5
-    }); 
-}
-
-function drawPlexus() {
-  pCtx.clearRect(0, 0, plexusCanvas.width, plexusCanvas.height); 
-  pCtx.fillStyle = 'rgba(0, 255, 0, 0.8)'; 
-  
-  for (let i = 0; i < numParticles; i++) {
-    let p = particles[i]; 
-    p.x += p.vx; p.y += p.vy;
-    
-    if (p.x < 0 || p.x > plexusCanvas.width) p.vx *= -1; 
-    if (p.y < 0 || p.y > plexusCanvas.height) p.vy *= -1;
-    
-    pCtx.beginPath(); 
-    pCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); 
-    pCtx.fill();
-    
-    for (let j = i + 1; j < numParticles; j++) {
-      let p2 = particles[j]; 
-      let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-      if (dis
+      document.getElementById('terminalStream').innerHTML = "[+] Logged out secure
