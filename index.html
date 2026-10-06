@@ -30,7 +30,7 @@
 
   #taskbarMinimize { position: fixed; bottom: 10px; left: 10px; background: rgba(0, 20, 0, 0.9); border: 1px solid var(--theme-color); padding: 8px 15px; border-radius: 4px; cursor: pointer; display: none; z-index: 9998; box-shadow: 0 0 10px var(--theme-shadow); font-weight: bold; color: var(--theme-color); }
 
-  #lockScreen { position: fixed; inset: 0; background: #000500; display: flex; flex-direction: column; justify-content: space-between; z-index: 9999; padding: 15px; overflow-y: auto; }
+  #lockScreen { position: fixed; inset: 0; background: transparent; display: flex; flex-direction: column; justify-content: space-between; z-index: 9999; padding: 15px; overflow-y: auto; }
   
   .login-hud-top, .login-hud-bottom { position: relative; z-index: 3; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 10px 15px; background: rgba(0, 15, 0, 0.7); border: 1px solid #0f0; font-size: 0.85rem; font-weight: bold; text-shadow: 0 0 10px #0f0; border-radius: 4px; box-shadow: 0 0 15px rgba(0,255,0,0.2); }
   .login-hud-center { position: relative; z-index: 3; display: flex; justify-content: center; align-items: center; flex: 1; padding: 15px 0; }
@@ -39,15 +39,16 @@
   .fullscreen-lock-card h2 { font-size: 2.2rem; color: #0f0; text-shadow: 0 0 18px rgba(0,255,0,1); margin-bottom: 8px; text-align: center; letter-spacing: 1px; }
   .fullscreen-lock-card p { color: #0f0; font-size: 0.95rem; margin-bottom: 20px; text-align: center; opacity: 0.9; }
   
-  .fullscreen-terminal-stream { background: rgba(0, 3, 0, 0.95); border: 1px solid #0f0; padding: 12px; font-size: 0.85rem; height: 120px; overflow-y: auto; text-align: left; margin-bottom: 20px; color: #0f0; border-radius: 4px; box-shadow: inset 0 0 15px rgba(0,255,0,0.4); line-height: 1.5; }
+  .fullscreen-terminal-stream { background: rgba(0, 3, 0, 0.95); border: 1px solid #0f0; padding: 12px; font-size: 0.85rem; height: 120px; overflow: hidden; text-align: left; margin-bottom: 20px; color: #0f0; border-radius: 4px; box-shadow: inset 0 0 15px rgba(0,255,0,0.4); line-height: 1.5; }
   
   .input-group { margin-bottom: 15px; }
-  .fullscreen-lock-card input { width: 100%; padding: 14px; background: rgba(0, 0, 0, 0.95); border: 1px solid #0f0; color: #0f0; font-size: 1.1rem; outline: none; margin-bottom: 12px; text-align: center; letter-spacing: 2px; font-family: 'Courier New', Courier, monospace; border-radius: 4px; box-shadow: 0 0 15px rgba(0,255,0,0.3); }
+  .fullscreen-lock-card input { width: 100%; padding: 14px; background: rgba(0, 0, 0, 0.95); border: 1px solid #0f0; color: #0f0; font-size: 1.1rem; outline: none; margin-bottom: 12px; text-align: center; letter-spacing: 2px; font-family: 'Courier New', Courier, monospace; border-radius: 4px; box-shadow: 0 0 15px rgba(0,255,0,0.3); transition: all 0.3s; }
+  .fullscreen-lock-card input:focus { box-shadow: 0 0 25px rgba(0,255,0,0.8); background: rgba(0,20,0,0.95); }
   
   .fullscreen-lock-card button { width: 100%; padding: 15px; background: #0f0; color: #000; font-weight: 900; border: none; font-size: 1.2rem; cursor: pointer; font-family: 'Courier New', Courier, monospace; border-radius: 4px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(0,255,0,0.5); }
-  .fullscreen-lock-card button:hover { background: #000; color: #0f0; border: 1px solid #0f0; }
+  .fullscreen-lock-card button:hover { background: #000; color: #0f0; border: 1px solid #0f0; box-shadow: 0 0 30px rgba(0,255,0,1); }
   
-  #lockError { color: #ffea00; font-size: 0.95rem; margin-top: 10px; min-height: 20px; text-align: center; font-weight: bold; }
+  #lockError { color: #ff3333; font-size: 0.95rem; margin-top: 10px; min-height: 20px; text-shadow: 0 0 8px #ff3333; text-align: center; font-weight: bold; }
   
   #mainContent { display: none; }
 
@@ -59,9 +60,10 @@
   .lookup-box h3 { font-size: 1rem; color: var(--theme-color); margin-bottom: 10px; }
   .lookup-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
   .lookup-row input { flex: 1; min-width: 150px; padding: 10px 12px; background: rgba(0, 0, 0, 0.8); border: 1px solid var(--theme-color); color: var(--theme-color); font-size: 0.9rem; outline: none; border-radius: 4px; }
+  .lookup-row input:focus { box-shadow: 0 0 10px var(--theme-shadow); }
   
-  .btn { display: block; width: 100%; padding: 12px; background: var(--theme-color); color: #000; font-weight: bold; border-radius: 4px; text-align: center; border: 1px solid var(--theme-color); cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 1rem; }
-  .btn:hover { background: #000; color: var(--theme-color); }
+  .btn { display: block; width: 100%; padding: 12px; background: var(--theme-color); color: #000; font-weight: bold; border-radius: 4px; text-align: center; border: 1px solid var(--theme-color); cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 1rem; transition: background 0.3s ease, color 0.3s ease; }
+  .btn:hover { background: #000; color: var(--theme-color); box-shadow: 0 0 15px var(--theme-shadow); }
   
   .output-box { margin-top: 20px; background: rgba(0, 0, 0, 0.85); border: 1px solid var(--theme-color); border-radius: 6px; padding: 15px; display: none; }
   pre { color: var(--theme-color); font-size: 0.85rem; white-space: pre-wrap; word-break: break-all; font-family: 'Courier New', Courier, monospace; }
@@ -71,7 +73,8 @@
 
 <canvas id="plexusBg"></canvas>
 
-<div id="taskbarMinimize" onclick="restoreWin()">[+] Rg_Data_Lookup_v2.5 (Restore)</div>
+<!-- TASKBAR BUTTON (HIDDEN BY DEFAULT) -->
+<div id="taskbarMinimize" onclick="restoreWin()">[+] Rg_Data_Lookup_v2.5 (Click to Restore)</div>
 
 <div id="lockScreen">
   <div class="login-hud-top">
@@ -84,6 +87,7 @@
     <div class="win-window fullscreen-lock-card">
       <div class="win-titlebar" style="background:#0f0; color:#000;">
         <span>Rg_Terminal_Security.exe</span>
+        <div class="win-controls"><span>_</span><span>□</span><span>×</span></div>
       </div>
       <div class="win-body">
         <h2>Rg Data Info</h2>
@@ -91,7 +95,7 @@
         
         <div class="fullscreen-terminal-stream" id="terminalStream">
           [+] Securing connection to Admin DB...<br>
-          [+] Initializing script environment...<br>
+          [+] Capturing Device MAC & IP Fingerprint...<br>
           <span id="deviceInfoText" style="color: #0ff;"></span><br>
           [+] Ready for User ID & Password Auth...
         </div>
@@ -121,7 +125,7 @@
       <div class="win-controls">
         <span onclick="minimizeWin()" title="Minimize">_</span>
         <span onclick="maximizeWin()" title="Maximize">□</span>
-        <span onclick="remoteLogout('manual')" title="Close / Logout" style="background: red; color: white;">×</span>
+        <span onclick="remoteLogout('manual')" title="Close / Logout" style="background: red; color: white;">⚠ SECURE LOGOUT</span>
       </div>
     </div>
     <div class="win-body">
@@ -145,47 +149,33 @@
 </div>
 
 <script>
-// ==================== FIREBASE SETUP & SAFE INIT ====================
-let db = null;
-try {
-  const firebaseConfig = {
-    apiKey: "AIzaSyA3ASn4y_7XQdRmAIq5riW_DxuKNlA5xKw",
-    authDomain: "jamal-data-hub-468cf.firebaseapp.com",
-    databaseURL: "https://jamal-data-hub-468cf-default-rtdb.firebaseio.com",
-    projectId: "jamal-data-hub-468cf",
-    storageBucket: "jamal-data-hub-468cf.firebasestorage.app",
-    messagingSenderId: "855580097775",
-    appId: "1:855580097775:web:b7ae3ef7dc377f7b91af1a"
-  };
-  if (!firebase.apps.length) {
+// ==================== FIREBASE SETUP ====================
+const firebaseConfig = {
+  apiKey: "AIzaSyA3A9n4y_7XQdRwKToGr1W_OsuKNtXGxKw",
+  authDomain: "jamal-data-hub-468cf.firebaseapp.com",
+  databaseURL: "https://jamal-data-hub-468cf-default-rtdb.firebaseio.com",
+  projectId: "jamal-data-hub-468cf",
+  storageBucket: "jamal-data-hub-468cf.firebasestorage.app",
+  messagingSenderId: "855580097775",
+  appId: "1:855580097775:web:f22e4b9731d40db191af1e"
+};
+if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
-  }
-  db = firebase.database();
-} catch (err) {
-  console.error("Firebase Init Error:", err);
 }
+const db = firebase.database();
 
-// ⚡ ANTI-FREEZE IP FETCH
+// ==================== SYSTEM TRACKING & AUDIO SETUP ====================
 let userIP = "UNKNOWN";
 let currentUserId = "";
 let deviceModel = navigator.userAgent.substring(0, 45) + "..."; 
 
-const fetchIP = async () => {
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000); // 4 sec timeout
-        const response = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
-        clearTimeout(timeoutId);
-        const data = await response.json();
-        userIP = data.ip;
-        document.getElementById('deviceIP').innerText = `[ IP: ${userIP} ]`;
-        document.getElementById('deviceInfoText').innerText = `[!] DEVICE LOGGED: ${userIP} | ${deviceModel}`;
-    } catch (e) {
-        document.getElementById('deviceIP').innerText = `[ IP: BLOCKED / LOCAL ]`;
-        document.getElementById('deviceInfoText').innerText = `[!] DEVICE LOGGED: UNKNOWN IP | ${deviceModel}`;
-    }
-};
-fetchIP();
+fetch('https://api.ipify.org?format=json')
+  .then(response => response.json())
+  .then(data => {
+    userIP = data.ip;
+    document.getElementById('deviceIP').innerText = `[ IP: ${userIP} ]`;
+    document.getElementById('deviceInfoText').innerText = `[!] DEVICE LOGGED: ${userIP} | ${deviceModel}`;
+  }).catch(e => console.log("IP Fetch blocked"));
 
 function getDeviceID() {
   let id = localStorage.getItem("rg_device_id");
@@ -196,26 +186,17 @@ function getDeviceID() {
   return id;
 }
 
-// 🔊 ROBUST AUDIO FIX
 const AudioContext = window.AudioContext || window.webkitAudioContext; 
 let audioCtx = null;
 
 function initAudio() {
-    if (!audioCtx) {
-        audioCtx = new AudioContext(); 
-    }
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
+    if (!audioCtx) audioCtx = new AudioContext(); 
+    if (audioCtx.state === 'suspended') audioCtx.resume();
 }
-// Unlock audio on first interaction
-document.body.addEventListener('click', initAudio, { once: true });
-document.body.addEventListener('touchstart', initAudio, { once: true });
 
 function playBeep(type = 'type') {
+    initAudio();
     try {
-        if (!audioCtx) return;
-        if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(); 
         osc.connect(gain); gain.connect(audioCtx.destination);
         if (type === 'type') { 
@@ -241,15 +222,34 @@ function playBeep(type = 'type') {
 document.addEventListener('keydown', () => playBeep('type'));
 document.addEventListener('click', () => playBeep('type'));
 
+// --- VOICE BUG FIX ENGINE ---
+let globalSpeech = null; 
+
 function speakMsg(text) {
   if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    const speech = new SpeechSynthesisUtterance(text); 
-    speech.rate = 0.95; 
-    speech.pitch = 1.0;
-    window.speechSynthesis.speak(speech);
+    window.speechSynthesis.cancel(); 
+    
+    globalSpeech = new SpeechSynthesisUtterance(text); 
+    globalSpeech.rate = 0.95; 
+    globalSpeech.pitch = 1.0;
+    globalSpeech.lang = 'en-US'; 
+    
+    const voices = window.speechSynthesis.getVoices();
+    const engVoice = voices.find(v => v.lang === 'en-US' || v.name.includes('English'));
+    if (engVoice) {
+      globalSpeech.voice = engVoice;
+    }
+
+    window.speechSynthesis.speak(globalSpeech);
   }
 }
+
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+    };
+}
+// ----------------------------
 
 function minimizeWin() {
   document.getElementById('mainContent').style.display = 'none';
@@ -263,40 +263,24 @@ function maximizeWin() {
   document.querySelector('.container').classList.toggle('maximized');
 }
 
+// ==================== LOGIN LOGIC & KILL SWITCH ====================
 const SESSION_EXPIRY_MS = 24 * 60 * 60 * 1000; 
 
+// FIX: Changed from localStorage to sessionStorage. App/Browser close hone pe data wipe ho jayega.
 window.addEventListener('DOMContentLoaded', () => {
-  const loginTime = localStorage.getItem("rg_login_timestamp");
+  const loginTime = sessionStorage.getItem("rg_login_timestamp");
   if (loginTime) {
     const timePassed = Date.now() - parseInt(loginTime);
-    if (timePassed < SESSION_EXPIRY_MS && localStorage.getItem("rg_is_active") === "true") {
+    if (timePassed < SESSION_EXPIRY_MS && sessionStorage.getItem("rg_is_active") === "true") {
       unlock(); 
       startKillSwitchListener(); 
     } else {
-      localStorage.removeItem("rg_login_timestamp");
-      setTimeout(() => speakMsg("Session expired. Please enter User ID and password to authenticate."), 1000);
+      sessionStorage.removeItem("rg_login_timestamp");
     }
-  } else {
-    setTimeout(() => speakMsg("System locked. Enter User ID and secure password to authenticate."), 1000);
   }
 });
 
 const CORRECT_PASSWORD = "j999";
-
-// 🛡️ ANTI-HANG BAN CHECKER
-const checkBanStatus = () => new Promise((resolve) => {
-    if (!db) resolve(false); // agar DB connect nahi hua toh skip
-    const timeout = setTimeout(() => resolve(false), 5000); // 5 sec se jyada atka toh skip karke login de dega
-    db.ref('active_users/' + getDeviceID()).once('value').then(snapshot => {
-        clearTimeout(timeout);
-        const data = snapshot.val();
-        if (data && data.status === "blocked") resolve(true);
-        else resolve(false);
-    }).catch(err => {
-        clearTimeout(timeout);
-        resolve(false);
-    });
-});
 
 async function verifyLogin() {
   initAudio();
@@ -306,13 +290,11 @@ async function verifyLogin() {
   const stream = document.getElementById('terminalStream');
 
   if (!currentUserId) {
-    err.style.color = "#ff3333";
     err.textContent = "❌ PLEASE ENTER USER ID";
     playBeep('error'); return;
   }
 
   if (password !== CORRECT_PASSWORD) {
-    err.style.color = "#ff3333";
     err.textContent = "❌ WRONG PASSWORD - ACCESS DENIED";
     playBeep('error');
     speakMsg("Access Denied. Wrong password entered.");
@@ -320,24 +302,27 @@ async function verifyLogin() {
     return;
   }
 
-  // Visual loading while checking Firebase
-  err.style.color = "#ffea00";
-  err.textContent = "⌛ Securing connection... Please wait...";
-
-  const isBanned = await checkBanStatus();
-  if (isBanned) {
-      err.style.color = "#ff3333";
-      err.textContent = "❌ DEVICE BANNED BY ADMIN";
-      stream.innerHTML += `<br><span style='color:red;'>[!] FATAL: Device is permanently blocked by Admin.</span>`;
-      playBeep('error');
-      speakMsg("Access Denied. This device has been permanently banned by the admin.");
-      return; 
+  // --- ADMIN BLOCK CHECK BEFORE ALLOWING LOGIN ---
+  err.textContent = "VERIFYING ADMIN CLEARANCE...";
+  try {
+    const snapshot = await db.ref('active_users/' + getDeviceID()).once('value');
+    if (snapshot.exists() && snapshot.val().status === "blocked") {
+        err.textContent = "❌ ACCESS DENIED: DEVICE BLOCKED BY ADMIN";
+        playBeep('error');
+        speakMsg("Access Denied. This device has been permanently blocked by the server administrator.");
+        document.getElementById('passwordInput').value = "";
+        return; 
+    }
+  } catch (e) {
+    console.error("Auth check issue:", e);
   }
+  // ---------------------------------------------
 
   playBeep('granted');
   err.textContent = "";
-  stream.innerHTML += `<br><span style="color:#ffea00">[!] User ID: ${currentUserId} Authenticated.</span>`;
+  stream.innerHTML += `<br><span style="color:#ffea00">[!] User ID: ${currentUserId} Authenticated.</span><br><span style="color:#0f0;">[+] Fetching Battery Status...</span>`;
 
+  // === FIRE THE VOICE NOW SO IT'S READY AND PLAYS IMMEDIATELY ===
   const hour = new Date().getHours();
   let timeGreeting = "Good morning";
   if (hour >= 12 && hour < 17) timeGreeting = "Good afternoon";
@@ -351,64 +336,70 @@ async function verifyLogin() {
   hours = hours % 12 || 12;
   const timeStr = `${hours}:${minutes} ${ampm}`;
 
-  speakMsg(`Access Granted. Welcome back boss. ${timeGreeting}, today is ${dayName}, current time is ${timeStr}. How can I help you today?`);
+  speakMsg(`Access Granted. Welcome back boss. ${timeGreeting}, today is ${dayName}, current time is ${timeStr}.`);
 
+  // === BATTERY FETCH ===
   let batInfo = "Unknown";
   try {
     if (navigator.getBattery) {
       let battery = await navigator.getBattery();
-      batInfo = Math.round(battery.level * 100) + "%";
+      batInfo = Math.round(battery.level * 100) + "% (Charging: " + (battery.charging ? "Yes" : "No") + ")";
     }
   } catch(e) {}
 
-  // Fast Location Check (2 sec max)
-  let locInfo = "Not Shared";
+  stream.innerHTML += `<br><span style="color:#0f0;">[+] Waiting for GPS approval...</span>`;
+
+  // === LOCATION FETCH ===
+  let locInfo = "Permission Denied / Timeout";
   const getLoc = () => new Promise((resolve) => {
     if (!navigator.geolocation) resolve("Not Supported");
     navigator.geolocation.getCurrentPosition(
       (pos) => resolve(`Lat: ${pos.coords.latitude}, Lon: ${pos.coords.longitude}`),
-      (err) => resolve("Denied")
+      (err) => resolve("Denied by User")
     );
   });
-  locInfo = await Promise.race([getLoc(), new Promise(r => setTimeout(() => r("Timeout / Denied"), 2000))]);
+  
+  // Wait up to 3 seconds max for location
+  locInfo = await Promise.race([getLoc(), new Promise(r => setTimeout(() => r("Timeout"), 3000))]);
 
-  if (db) {
-    db.ref('active_users/' + getDeviceID()).set({
-       user_id: currentUserId,
-       ip: userIP, 
-       device: deviceModel, 
-       battery: batInfo,
-       location: locInfo,
-       login_time: new Date().toLocaleString(),
-       status: "active"
-    }).catch(err => console.log("DB write err:", err));
-  }
+  stream.innerHTML += `<br><span style="color:#0f0;">[+] Registering device session...</span>`;
 
-  localStorage.setItem("rg_login_timestamp", Date.now().toString());
-  localStorage.setItem("rg_is_active", "true");
+  // Update Firebase (Including Battery and Location)
+  db.ref('active_users/' + getDeviceID()).set({
+     user_id: currentUserId,
+     ip: userIP, 
+     device: deviceModel, 
+     battery: batInfo,
+     location: locInfo,
+     login_time: new Date().toLocaleString(),
+     status: "active"
+  });
+
+  // FIX: Shifted to sessionStorage
+  sessionStorage.setItem("rg_login_timestamp", Date.now().toString());
+  sessionStorage.setItem("rg_is_active", "true");
   
   unlock();
   startKillSwitchListener();
 }
 
 function startKillSwitchListener() {
-  if (!db) return;
-  const userRef = db.ref('active_users/' + getDeviceID());
-  userRef.off();
-  userRef.on('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data && data.status === "blocked") { 
+  const statusRef = db.ref('active_users/' + getDeviceID() + '/status');
+  statusRef.off(); 
+  statusRef.on('value', (snapshot) => {
+    if(snapshot.val() === "blocked") { 
       remoteLogout("server"); 
     }
   });
 }
 
 function remoteLogout(source) {
-  localStorage.removeItem("rg_login_timestamp");
-  localStorage.setItem("rg_is_active", "false");
+  // FIX: Shifted to sessionStorage
+  sessionStorage.removeItem("rg_login_timestamp");
+  sessionStorage.setItem("rg_is_active", "false");
   
-  if(source === "manual" && db) {
-    db.ref('active_users/' + getDeviceID()).update({ status: "logged_out" }).catch(e=>{});
+  if(source === "manual") {
+    db.ref('active_users/' + getDeviceID()).update({ status: "logged_out" }).catch(()=>{});
   }
   
   document.getElementById('taskbarMinimize').style.display = "none";
@@ -416,12 +407,111 @@ function remoteLogout(source) {
   document.getElementById('lockScreen').style.display = "flex";
   document.getElementById('userIdInput').value = "";
   document.getElementById('passwordInput').value = "";
+  document.documentElement.style.setProperty('--theme-color', '#0f0');
   
   if(source === "server") {
-      document.getElementById('lockError').style.color = "#ff3333";
       document.getElementById('lockError').textContent = "❌ SESSION TERMINATED BY ADMIN";
-      document.getElementById('terminalStream').innerHTML = "<span style='color:red;'>[!] FATAL: Connection killed by Admin server.</span>";
+      document.getElementById('terminalStream').innerHTML = "<span style='color:red;'>[!] FATAL: Connection killed by Admin server.</span><br>[!] Device IP Blacklisted.";
       playBeep('error');
       speakMsg("Session terminated by server admin. Access revoked.");
   } else {
-      document.getElementById('terminalStream').innerHTML = "[+] Logged out secure
+      document.getElementById('terminalStream').innerHTML = "[+] Logged out securely.<br>[+] Waiting for authorization...";
+      speakMsg("System locked successfully.");
+  }
+}
+
+function unlock() { document.getElementById('lockScreen').style.display = "none"; document.getElementById('mainContent').style.display = "block"; document.documentElement.style.setProperty('--theme-color', '#0f0'); }
+
+// ==================== BACKGROUND ANIMATION (SHARP PLEXUS) ====================
+const plexusCanvas = document.getElementById('plexusBg');
+const pCtx = plexusCanvas.getContext('2d');
+plexusCanvas.width = window.innerWidth; plexusCanvas.height = window.innerHeight;
+const particles = []; 
+const numParticles = 55;
+
+for (let i = 0; i < numParticles; i++) { 
+    particles.push({ 
+        x: Math.random() * plexusCanvas.width, 
+        y: Math.random() * plexusCanvas.height, 
+        vx: (Math.random() - 0.5) * 1.0, 
+        vy: (Math.random() - 0.5) * 1.0,
+        radius: Math.random() * 1.5 + 0.8
+    }); 
+}
+
+function drawPlexus() {
+  pCtx.clearRect(0, 0, plexusCanvas.width, plexusCanvas.height); 
+  pCtx.fillStyle = 'rgba(0, 255, 0, 0.8)'; 
+  
+  for (let i = 0; i < numParticles; i++) {
+    let p = particles[i]; 
+    p.x += p.vx; p.y += p.vy;
+    
+    if (p.x < 0 || p.x > plexusCanvas.width) p.vx *= -1; 
+    if (p.y < 0 || p.y > plexusCanvas.height) p.vy *= -1;
+    
+    pCtx.beginPath(); 
+    pCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); 
+    pCtx.fill();
+    
+    for (let j = i + 1; j < numParticles; j++) {
+      let p2 = particles[j]; 
+      let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+      if (dist < 140) { 
+        pCtx.beginPath(); 
+        pCtx.strokeStyle = `rgba(0, 255, 0, ${1 - dist / 140})`; 
+        pCtx.lineWidth = 0.8;
+        pCtx.moveTo(p.x, p.y); 
+        pCtx.lineTo(p2.x, p2.y); 
+        pCtx.stroke(); 
+      }
+    }
+  } requestAnimationFrame(drawPlexus);
+} drawPlexus();
+
+window.addEventListener('resize', () => { 
+  plexusCanvas.width = window.innerWidth; plexusCanvas.height = window.innerHeight;
+});
+
+setInterval(() => {
+  const now = new Date(); document.getElementById('liveClock').innerText = `DATE: ${now.toLocaleDateString()} TIME: ${now.toLocaleTimeString()}`;
+}, 1000);
+
+const logs = ["[+] Bypassing firewall node #4...", "[+] Injecting shellcode into gateway...", "[+] Intercepting encrypted packets...", "[+] Port 8080 active & listening...", "[+] Decrypting neural hash signature...", "[+] Proxy rotation successful..."];
+setInterval(() => {
+  const stream = document.getElementById('terminalStream');
+  if (stream && document.getElementById('lockScreen').style.display !== 'none') {
+    stream.innerHTML += "<br>" + logs[Math.floor(Math.random() * logs.length)];
+    stream.scrollTop = stream.scrollHeight;
+  }
+}, 2000);
+
+// ==================== FETCH API ====================
+async function executeLookup() {
+  const number = document.getElementById('targetNumber').value.trim();
+  const key = document.getElementById('targetKey').value.trim();
+  const box = document.getElementById('outputBox'); const pre = document.getElementById('outputPre');
+  
+  if (!number || !key) {
+    playBeep('error');
+    alert("Please enter both Mobile Number and API Key!"); return;
+  }
+
+  document.documentElement.style.setProperty('--theme-color', '#00ffff');
+  box.style.display = 'block'; pre.textContent = "[*] Connecting to secure gateway...\n[*] Authenticating token...\n[*] Fetching target records...";
+  
+  try {
+    const res = await fetch(`https://jamal-data-hub.vercel.app/api/number?number=${encodeURIComponent(number)}&key=${encodeURIComponent(key)}`);
+    const data = await res.json(); 
+    pre.textContent = data.bot_format || JSON.stringify(data, null, 2); 
+    playBeep('success');
+    document.documentElement.style.setProperty('--theme-color', '#0f0');
+  } catch (err) { 
+    pre.textContent = "❌ ERROR: Failed to connect to API endpoint or invalid response."; 
+    playBeep('error');
+    document.documentElement.style.setProperty('--theme-color', '#0f0');
+  }
+}
+</script>
+</body>
+</html>
