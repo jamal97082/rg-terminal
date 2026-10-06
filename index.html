@@ -100,10 +100,10 @@
           [+] Ready for User ID & Password Auth...
         </div>
 
-        <div class="input-group">
+        <div class="input-group" id="loginFormContainer">
           <input id="userIdInput" type="text" placeholder="ENTER USER ID" autocomplete="off" />
           <input id="passwordInput" type="password" placeholder="ENTER PASSWORD" onkeydown="if(event.key==='Enter')verifyLogin()" />
-          <button onclick="verifyLogin()">AUTHORIZE & LOGIN</button>
+          <button id="loginBtn" onclick="verifyLogin()">AUTHORIZE & LOGIN</button>
         </div>
 
         <div id="lockError"></div>
@@ -151,13 +151,13 @@
 <script>
 // ==================== FIREBASE SETUP ====================
 const firebaseConfig = {
-  apiKey: "AIzaSyA3A9n4y_7XQdRwKToGr1W_OsuKNtXGxKw",
-  authDomain: "jamal-data-hub-468cf.firebaseapp.com",
-  databaseURL: "https://jamal-data-hub-468cf-default-rtdb.firebaseio.com",
-  projectId: "jamal-data-hub-468cf",
-  storageBucket: "jamal-data-hub-468cf.firebasestorage.app",
-  messagingSenderId: "855580097775",
-  appId: "1:855580097775:web:f22e4b9731d40db191af1e"
+  apiKey: "AIzaSyC3WgnbZGM6bD2C-69dtsAmqJSqazjbBfI",
+  authDomain: "rgdata-terminal.firebaseapp.com",
+  databaseURL: "https://rgdata-terminal-default-rtdb.firebaseio.com",
+  projectId: "rgdata-terminal",
+  storageBucket: "rgdata-terminal.firebasestorage.app",
+  messagingSenderId: "889274358195",
+  appId: "1:889274358195:web:115971f63efb88664d13c6"
 };
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
@@ -224,32 +224,26 @@ document.addEventListener('click', () => playBeep('type'));
 
 // --- VOICE BUG FIX ENGINE ---
 let globalSpeech = null; 
-
 function speakMsg(text) {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel(); 
-    
     globalSpeech = new SpeechSynthesisUtterance(text); 
     globalSpeech.rate = 0.95; 
     globalSpeech.pitch = 1.0;
     globalSpeech.lang = 'en-US'; 
-    
     const voices = window.speechSynthesis.getVoices();
     const engVoice = voices.find(v => v.lang === 'en-US' || v.name.includes('English'));
     if (engVoice) {
       globalSpeech.voice = engVoice;
     }
-
     window.speechSynthesis.speak(globalSpeech);
   }
 }
-
 if ('speechSynthesis' in window) {
     window.speechSynthesis.onvoiceschanged = () => {
         window.speechSynthesis.getVoices();
     };
 }
-// ----------------------------
 
 function minimizeWin() {
   document.getElementById('mainContent').style.display = 'none';
@@ -266,18 +260,46 @@ function maximizeWin() {
 // ==================== LOGIN LOGIC & KILL SWITCH ====================
 const SESSION_EXPIRY_MS = 24 * 60 * 60 * 1000; 
 
-// FIX: Changed from localStorage to sessionStorage. App/Browser close hone pe data wipe ho jayega.
+function applyPermanentBlock() {
+  document.getElementById('loginFormContainer').style.display = 'none'; // Hide Inputs & Button completely
+  document.getElementById('lockError').textContent = "❌ DEVICE PERMANENTLY BLOCKED BY ADMIN";
+  document.getElementById('terminalStream').innerHTML = "<span style='color:red;'>[!] FATAL: Connection killed by Admin server.</span><br>[!] Device IP Blacklisted.<br>[!] Access completely revoked.";
+  document.getElementById('mainContent').style.display = "none";
+  document.getElementById('lockScreen').style.display = "flex";
+  document.documentElement.style.setProperty('--theme-color', '#ff0000'); // Turn Theme Red
+  
+  // Clear any active session
+  sessionStorage.removeItem("rg_login_timestamp");
+  sessionStorage.setItem("rg_is_active", "false");
+}
+
+function removePermanentBlock() {
+  document.getElementById('loginFormContainer').style.display = 'block'; // Show Inputs & Button back
+  document.getElementById('lockError').textContent = "";
+  document.getElementById('terminalStream').innerHTML = "[+] Securing connection to Admin DB...<br>[+] Ready for User ID & Password Auth...";
+  document.documentElement.style.setProperty('--theme-color', '#0f0'); // Turn Theme Green
+}
+
+// Global Listener - Page load hote hi check karega
 window.addEventListener('DOMContentLoaded', () => {
-  const loginTime = sessionStorage.getItem("rg_login_timestamp");
-  if (loginTime) {
-    const timePassed = Date.now() - parseInt(loginTime);
-    if (timePassed < SESSION_EXPIRY_MS && sessionStorage.getItem("rg_is_active") === "true") {
-      unlock(); 
-      startKillSwitchListener(); 
+  const deviceId = getDeviceID();
+  
+  db.ref('active_users/' + deviceId + '/status').on('value', (snapshot) => {
+    if(snapshot.exists() && snapshot.val() === "blocked") {
+      applyPermanentBlock(); 
+      if (document.getElementById('mainContent').style.display === "block") {
+         playBeep('error');
+         speakMsg("Session terminated by server admin. Access revoked.");
+      }
     } else {
-      sessionStorage.removeItem("rg_login_timestamp");
+      removePermanentBlock();
+      // Regular Login Check
+      const loginTime = sessionStorage.getItem("rg_login_timestamp");
+      if (loginTime && (Date.now() - parseInt(loginTime)) < SESSION_EXPIRY_MS && sessionStorage.getItem("rg_is_active") === "true") {
+        unlock(); 
+      }
     }
-  }
+  });
 });
 
 const CORRECT_PASSWORD = "j999";
@@ -302,27 +324,24 @@ async function verifyLogin() {
     return;
   }
 
-  // --- ADMIN BLOCK CHECK BEFORE ALLOWING LOGIN ---
+  // Double check admin block before proceeding
   err.textContent = "VERIFYING ADMIN CLEARANCE...";
   try {
     const snapshot = await db.ref('active_users/' + getDeviceID()).once('value');
     if (snapshot.exists() && snapshot.val().status === "blocked") {
-        err.textContent = "❌ ACCESS DENIED: DEVICE BLOCKED BY ADMIN";
+        applyPermanentBlock();
         playBeep('error');
         speakMsg("Access Denied. This device has been permanently blocked by the server administrator.");
-        document.getElementById('passwordInput').value = "";
         return; 
     }
   } catch (e) {
     console.error("Auth check issue:", e);
   }
-  // ---------------------------------------------
 
   playBeep('granted');
   err.textContent = "";
   stream.innerHTML += `<br><span style="color:#ffea00">[!] User ID: ${currentUserId} Authenticated.</span><br><span style="color:#0f0;">[+] Fetching Battery Status...</span>`;
 
-  // === FIRE THE VOICE NOW SO IT'S READY AND PLAYS IMMEDIATELY ===
   const hour = new Date().getHours();
   let timeGreeting = "Good morning";
   if (hour >= 12 && hour < 17) timeGreeting = "Good afternoon";
@@ -338,7 +357,6 @@ async function verifyLogin() {
 
   speakMsg(`Access Granted. Welcome back boss. ${timeGreeting}, today is ${dayName}, current time is ${timeStr}.`);
 
-  // === BATTERY FETCH ===
   let batInfo = "Unknown";
   try {
     if (navigator.getBattery) {
@@ -349,7 +367,6 @@ async function verifyLogin() {
 
   stream.innerHTML += `<br><span style="color:#0f0;">[+] Waiting for GPS approval...</span>`;
 
-  // === LOCATION FETCH ===
   let locInfo = "Permission Denied / Timeout";
   const getLoc = () => new Promise((resolve) => {
     if (!navigator.geolocation) resolve("Not Supported");
@@ -359,12 +376,10 @@ async function verifyLogin() {
     );
   });
   
-  // Wait up to 3 seconds max for location
   locInfo = await Promise.race([getLoc(), new Promise(r => setTimeout(() => r("Timeout"), 3000))]);
 
   stream.innerHTML += `<br><span style="color:#0f0;">[+] Registering device session...</span>`;
 
-  // Update Firebase (Including Battery and Location)
   db.ref('active_users/' + getDeviceID()).set({
      user_id: currentUserId,
      ip: userIP, 
@@ -375,26 +390,13 @@ async function verifyLogin() {
      status: "active"
   });
 
-  // FIX: Shifted to sessionStorage
   sessionStorage.setItem("rg_login_timestamp", Date.now().toString());
   sessionStorage.setItem("rg_is_active", "true");
   
   unlock();
-  startKillSwitchListener();
-}
-
-function startKillSwitchListener() {
-  const statusRef = db.ref('active_users/' + getDeviceID() + '/status');
-  statusRef.off(); 
-  statusRef.on('value', (snapshot) => {
-    if(snapshot.val() === "blocked") { 
-      remoteLogout("server"); 
-    }
-  });
 }
 
 function remoteLogout(source) {
-  // FIX: Shifted to sessionStorage
   sessionStorage.removeItem("rg_login_timestamp");
   sessionStorage.setItem("rg_is_active", "false");
   
@@ -409,12 +411,7 @@ function remoteLogout(source) {
   document.getElementById('passwordInput').value = "";
   document.documentElement.style.setProperty('--theme-color', '#0f0');
   
-  if(source === "server") {
-      document.getElementById('lockError').textContent = "❌ SESSION TERMINATED BY ADMIN";
-      document.getElementById('terminalStream').innerHTML = "<span style='color:red;'>[!] FATAL: Connection killed by Admin server.</span><br>[!] Device IP Blacklisted.";
-      playBeep('error');
-      speakMsg("Session terminated by server admin. Access revoked.");
-  } else {
+  if(source !== "server") {
       document.getElementById('terminalStream').innerHTML = "[+] Logged out securely.<br>[+] Waiting for authorization...";
       speakMsg("System locked successfully.");
   }
@@ -480,7 +477,7 @@ setInterval(() => {
 const logs = ["[+] Bypassing firewall node #4...", "[+] Injecting shellcode into gateway...", "[+] Intercepting encrypted packets...", "[+] Port 8080 active & listening...", "[+] Decrypting neural hash signature...", "[+] Proxy rotation successful..."];
 setInterval(() => {
   const stream = document.getElementById('terminalStream');
-  if (stream && document.getElementById('lockScreen').style.display !== 'none') {
+  if (stream && document.getElementById('lockScreen').style.display !== 'none' && document.getElementById('loginFormContainer').style.display !== 'none') {
     stream.innerHTML += "<br>" + logs[Math.floor(Math.random() * logs.length)];
     stream.scrollTop = stream.scrollHeight;
   }
